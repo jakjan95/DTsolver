@@ -2,6 +2,7 @@ import unittest
 
 from tests.empty_test import EmptyTest
 from tests.tree_leaf_test import TreeLeafGenericTest
+from tests.heurestics_test import HeuresticsTest
 
 
 def main():
@@ -9,7 +10,9 @@ def main():
 
     test_suites = [
         test_loader.loadTestsFromTestCase(EmptyTest),
-        test_loader.loadTestsFromTestCase(TreeLeafGenericTest)
+        test_loader.loadTestsFromTestCase(TreeLeafGenericTest),
+        test_loader.loadTestsFromTestCase(HeuresticsTest)
+
     ]
 
     test_runner = unittest.TextTestRunner(verbosity=2)
