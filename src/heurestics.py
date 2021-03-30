@@ -183,9 +183,9 @@ def gini_pri(data, split_attribute_name, target_name="CLASS"):
     first_part = 0.0
 
     for attribute_element in split_attribute_val_count:
-        attributeProbability = split_attribute_val_count[attribute_element]/sum(
+        attribute_probability = split_attribute_val_count[attribute_element]/sum(
             split_attribute_val_count.values())
-        first_part = pow(attributeProbability, 2) / \
+        first_part = pow(attribute_probability, 2) / \
             sum_of_squares_attribute_probability
         second_part = 0.0
         for class_element in class_atribute_val_count:
@@ -193,13 +193,17 @@ def gini_pri(data, split_attribute_name, target_name="CLASS"):
                                [attribute_element] / split_attribute_val_count[attribute_element], 2)
         equation_result += first_part * second_part
 
-    sum_Of_square_class_probability = sum(pow(
+    sum_of_square_class_probability = sum(pow(
         class_val_count[el]/sum(class_val_count.values()), 2) for el in class_val_count)
-    gini_pri_value = equation_result - sum_Of_square_class_probability
+    gini_pri_value = equation_result - sum_of_square_class_probability
     return gini_pri_value
 
 
 def relief(data, split_attribute_name, target_name="CLASS"):
+    """
+    TODO: handling very small value of sum_of_squares_attributes_probability * gini_pri_value 
+    and nan value in relief_value for some weird data columns
+    """
     class_val_count = get_attributes_splited_and_counted(data, target_name)
     split_attribute_val_count = get_attributes_splited_and_counted(
         data, split_attribute_name)
@@ -238,8 +242,12 @@ def relevance(data, split_attribute_name, target_name="CLASS"):
         sum_value += sum(imj_values)
 
     number_of_classes = len(class_val_count.keys())
-    constant_before_sum = 1/(number_of_classes - 1)
 
+    if number_of_classes == 1:
+        constant_before_sum = 0
+    else:
+        constant_before_sum = 1 / (number_of_classes - 1)
+        
     relevance_value = 1 - constant_before_sum * sum_value
     return relevance_value
 
