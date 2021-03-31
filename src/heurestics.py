@@ -62,6 +62,25 @@ def information_gain_ratio(data, split_attribute_name, target_name="CLASS"):
 # Heurestics for attribute selection
 
 
+def distance_measure(data, split_attribute_name, target_name="CLASS"):
+    total_entropy = entropy(data[target_name])
+
+    vals, counts = np.unique(data[split_attribute_name], return_counts=True)
+    information_gain = info_gain(data, split_attribute_name, target_name)
+
+    weighted_entropy = np.sum([(counts[i]/np.sum(counts))*entropy(data.where(
+        data[split_attribute_name] == vals[i]).dropna()[target_name]) for i in range(len(vals))])
+    entropy_of_feature = np.sum(
+        [(-counts[i]/np.sum(counts))*np.log2(counts[i]/np.sum(counts)) for i in range(len(vals))])
+
+    if weighted_entropy + entropy_of_feature != 0: #workaround for very small values 
+        distance = 1 - (information_gain / (weighted_entropy + entropy_of_feature))
+    else:
+        distance = 1
+        
+    return distance
+
+
 def get_attributes_splited_and_counted(data, split_attribute_name):
     """
     Helper function - calculates number of instances from given split_attribute_name
@@ -247,7 +266,7 @@ def relevance(data, split_attribute_name, target_name="CLASS"):
         constant_before_sum = 0
     else:
         constant_before_sum = 1 / (number_of_classes - 1)
-        
+
     relevance_value = 1 - constant_before_sum * sum_value
     return relevance_value
 

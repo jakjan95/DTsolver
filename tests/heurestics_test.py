@@ -42,6 +42,17 @@ class HeuresticsTest(TestCase):
         self.assertAlmostEqual(heur.information_gain_ratio(
             self.test_table, 'Feature2'), test_information_gain_ratio_value_for_feature2, 2)
 
+
+
+    def test_distance_measure(self):
+        test_distance_measure_value_for_feature1 = 0.789
+        self.assertAlmostEqual(heur.distance_measure(
+            self.test_table, 'Feature1'), test_distance_measure_value_for_feature1, 2)
+
+        test_distance_measure_value_for_feature2 = 0.760
+        self.assertAlmostEqual(heur.distance_measure(
+            self.test_table, 'Feature2'), test_distance_measure_value_for_feature2, 2)
+
     def test_get_attributes_splited_and_counted(self):
         expected_result_for_feature1 = {'A': 4, 'B': 1, 'C': 1}
         self.assertEqual(heur.get_attributes_splited_and_counted(
