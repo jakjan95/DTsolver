@@ -219,10 +219,6 @@ def gini_pri(data, split_attribute_name, target_name="CLASS"):
 
 
 def relief(data, split_attribute_name, target_name="CLASS"):
-    """
-    TODO: handling very small value of sum_of_squares_attributes_probability * gini_pri_value 
-    and nan value in relief_value for some weird data columns
-    """
     class_val_count = get_attributes_splited_and_counted(data, target_name)
     split_attribute_val_count = get_attributes_splited_and_counted(
         data, split_attribute_name)
@@ -236,8 +232,16 @@ def relief(data, split_attribute_name, target_name="CLASS"):
         class_val_count.values())), 2) for class_element in class_val_count)
 
     gini_pri_value = gini_pri(data, split_attribute_name, target_name)
-    relief_value = (sum_of_squares_attributes_probability * gini_pri_value) / \
-        (sum_of_squares_class_probability * (1 - sum_of_squares_class_probability))
+
+    relief_value_denominator = (
+        sum_of_squares_class_probability * (1 - sum_of_squares_class_probability))
+
+    if relief_value_denominator != 0:
+        relief_value = (sum_of_squares_attributes_probability *
+                        gini_pri_value) / relief_value_denominator
+    else:
+        relief_value = 0
+
     return relief_value
 
 
