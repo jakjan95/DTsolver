@@ -5,6 +5,8 @@ from src.heurestics import gini_impurity_weighted
 import pandas as pd
 import numpy as np
 
+from decimal import *
+
 """
 Tree building function with helper functions tested using gini_impuriti_weighted 
 """
@@ -35,12 +37,12 @@ class TreeBuildTest(TestCase):
             'NumericFeature', self.test_table), split_value_result, 2)
 
     def test_heurestic_for_split(self):
-        heurestic_for_split_result = 0.43
+        heurestic_for_split_result = Decimal(0.43)
         self.assertAlmostEqual(tree.heurestic_for_split(
             'NumericFeature', 3, self.test_table), heurestic_for_split_result, 2)
 
         best_split_value = 4.5
-        heurestic_for_split_result_with_best_split_value = 0.416
+        heurestic_for_split_result_with_best_split_value = Decimal(0.416)
         self.assertAlmostEqual(tree.heurestic_for_split(
             'NumericFeature', best_split_value, self.test_table), heurestic_for_split_result_with_best_split_value, 2)
 
@@ -53,13 +55,13 @@ class TreeBuildTest(TestCase):
             self.test_table, 'ClassFeature'))
 
     def test_heuristic_weighted(self):
-        heuristic_value_for_class_feature = 0.416
+        heuristic_value_for_class_feature = Decimal(0.416)
         self.assertAlmostEqual(tree.heuristic_weighted(
             self.test_table, 'NumericFeature'), heuristic_value_for_class_feature, 2)
-        heuristic_value_for_binary_feature = 0.488
+        heuristic_value_for_binary_feature = Decimal(0.488)
         self.assertAlmostEqual(tree.heuristic_weighted(
             self.test_table, 'BinaryFeature'), heuristic_value_for_binary_feature, 2)
-        heuristic_value_for_class_feature = 0.425
+        heuristic_value_for_class_feature = Decimal(0.425)
         self.assertAlmostEqual(tree.heuristic_weighted(
             self.test_table, 'ClassFeature'), heuristic_value_for_class_feature, 2)
 
