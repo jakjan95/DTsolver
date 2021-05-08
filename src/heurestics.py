@@ -139,15 +139,13 @@ def j_measure(data, split_attribute_name, target_name="CLASS"):
                 class_val_count[class_el]/sum(class_val_count.values()))
             
             if class_and_attribute_probability == 0:
-                sum_value += 0
+                sum_value += Decimal(0.0)
             else:
                 sum_value += Decimal(class_and_attribute_probability * \
                     Decimal(np.log2(float(class_and_attribute_probability / class_probability))))
         
         if not math.isnan(sum_value):
             j_measure_value += attribute_probability * sum_value
-        else:
-            j_measure_value += attribute_probability * Decimal(0)
     
     return j_measure_value
 
@@ -186,8 +184,7 @@ def weight_of_evidence(data, split_attribute_name, target_name="CLASS"):
             if odds(class_and_attribute_propability) != 0 and odds(class_probability) != 0:
                 logarithm_part = Decimal(np.log2(float(
                     odds(class_and_attribute_propability)/odds(class_probability))))
-            else:
-                logarithm_part = 0.0
+                    
             sum_value = attribute_probability * Decimal(abs(logarithm_part))
         weight_of_evidence_value += class_probability * sum_value
     return weight_of_evidence_value
