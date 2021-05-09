@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 from src.tree_leaf import TreeLeafGeneric
-from src.heurestics import gini_impurity_weighted
+from src.heurestics import *
 
 
 def heurestic_for_split(feature, split_value, samples, target_name="CLASS", heurestic=gini_impurity_weighted):
@@ -74,11 +74,31 @@ def extract_values(data, feature, heuristic=gini_impurity_weighted):
             values_for_given_feature[elements[ind]] = counts[ind]
         return values_for_given_feature
 
+def create_terminal_node(data, target_name = "CLASS"):
+    return data[target_name].value_counts().idxmax()
 
+
+data_set_size = 0
 def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=False):
     name_of_predicted_class = 'CLASS'
+
+    global data_set_size
+
+    if parent_node is None:
+        data_set_size = len(data)
+
     if len(list(data)) == 2:
-        return data[name_of_predicted_class].value_counts().idxmax()
+        return create_terminal_node(data, name_of_predicted_class)
+    elif len(set(data[name_of_predicted_class])) == 1:
+        """
+        Class homogenity
+        """
+        return list(set(data[name_of_predicted_class]))[0]
+    elif len(data) <= data_set_size * 0.01:
+        """
+        Minimum number of instance for a non-terminal node - just to avoid overgrowing
+        """
+        return create_terminal_node(data, name_of_predicted_class)
     else:
         tree = {}
         features = list(data)
@@ -86,12 +106,23 @@ def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=Fa
 
         splitting_heurestics_values = [heuristic_weighted(
             data, given_feature, heurestics) for given_feature in features]
-        best_heurestics_value_ind = np.argmin(splitting_heurestics_values)
+
+        if heurestics in [info_gain, information_gain_ratio, distance_measure, j_measure, weight_of_evidence]:
+            best_heurestics_value_ind = np.argmax(splitting_heurestics_values)
+        elif heurestics in [gini_impurity_weighted, gini_pri, relief, relevance, mdl_simple]:
+            best_heurestics_value_ind = np.argmin(splitting_heurestics_values)
+
         best_splitting_feature = features[best_heurestics_value_ind]
 
         if parent_node is not None:
-            if splitting_heurestics_values[best_heurestics_value_ind] > parent_node.heurestic_value or splitting_heurestics_values[best_heurestics_value_ind] == 0:
-                return data[name_of_predicted_class].value_counts().idxmax()
+            if len(set(data[best_splitting_feature])) == 1:
+                """
+                Attribute homogenity
+                """
+                return create_terminal_node(data, name_of_predicted_class)
+            #Below check was to avoid overgrown trees - not needed for trees which will be pruning
+            # if splitting_heurestics_values[best_heurestics_value_ind] > parent_node.heurestic_value or splitting_heurestics_values[best_heurestics_value_ind] == 0:
+            #     return create_terminal_node(data, name_of_predicted_class)
 
         if is_column_numeric(data, best_splitting_feature):
             root_node = TreeLeafGeneric(best_splitting_feature, extract_values(

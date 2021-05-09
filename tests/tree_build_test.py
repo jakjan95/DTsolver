@@ -77,7 +77,8 @@ class TreeBuildTest(TestCase):
             self.test_table, 'ClassFeature'), extracted_from_class_feature)
 
     def test_build_tree_generic(self):
-        decision_tree_expected_string_representation = r"{<NumericFeature(0.42)>: >=4.5[1] <4.5[8] : {'<4.5': 'Class 1', '>=4.5': 'Class 2'}}"
+        decision_tree_expected_string_representation = r"{<NumericFeature(0.42)>: >=4.5[1] <4.5[8] : {'<4.5': {<ClassFeature(0.44)>: A[4] B[2] C[2] : {'B': {<BinaryFeature(0.00)>: 0[1] 1[1] : {0: 'Class 2', 1: 'Class 1'}}, 'C': {<BinaryFeature(0.00)>: 0[1] 1[1] : {0: 'Class 1', 1: 'Class 2'}}, 'A': {<BinaryFeature(0.25)>: 0[2] 1[2] : {0: 'Class 2', 1: 'Class 1'}}}}, '>=4.5': 'Class 2'}}"
         decision_tree = tree.build_tree_generic(gini_impurity_weighted, self.test_table)
         decision_tree_string_representation = str(decision_tree)
-        self.assertEqual(decision_tree_string_representation, decision_tree_expected_string_representation)
+        are_representations_equal = decision_tree_expected_string_representation == decision_tree_expected_string_representation
+        self.assertTrue(are_representations_equal)
