@@ -3,8 +3,8 @@ from src.tree_leaf import TreeLeafGeneric
 
 class TreeLeafGenericTest(TestCase):
     def setUp(self):
-        self.leaf_with_numeric_data = TreeLeafGeneric('Numeric feature', {'>=0':5, '<0':1}, 1, True)
-        self.leaf_without_numeric_data = TreeLeafGeneric('Feature', {'A':5, 'B':1}, 1)
+        self.leaf_with_numeric_data = TreeLeafGeneric('Numeric feature', {'>=0':5, '<0':1}, 0, 1, True)
+        self.leaf_without_numeric_data = TreeLeafGeneric('Feature', {'A':5, 'B':1}, 0, 1)
     
     def test_leaf_is_numeric(self):
         self.assertTrue(self.leaf_with_numeric_data.is_tree_feature_numeric())

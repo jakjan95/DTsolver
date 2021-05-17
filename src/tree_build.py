@@ -19,6 +19,9 @@ def heurestic_for_split(feature, split_value, samples, target_name="CLASS", heur
 
 
 def split_continuous_variable(feature, samples, heurestic=gini_impurity_weighted):
+    """
+    TODO: handling different heurestics
+    """
     feature_values = list(set(samples[feature]))
     feature_values.sort()
 
@@ -74,8 +77,45 @@ def extract_values(data, feature, heuristic=gini_impurity_weighted):
             values_for_given_feature[elements[ind]] = counts[ind]
         return values_for_given_feature
 
+
 def create_terminal_node(data, target_name = "CLASS"):
     return data[target_name].value_counts().idxmax()
+
+
+def extract_class_values_for_attributes(data, feature, heuristic=gini_impurity_weighted, target_name="CLASS"):
+    attribute_values_class_count = {}
+    class_values = list(set(data[target_name]))
+    class_values_dict = {}
+    for value in class_values:
+        class_values_dict[value] = 0
+
+    if is_column_numeric(data, feature):
+        split_value = split_continuous_variable(
+            feature, data, heuristic)
+        positive_item_key = ">=" + str(split_value)
+        negative_item_key = "<" + str(split_value)
+        attribute_values_class_count[positive_item_key] = class_values_dict.copy()
+        attribute_values_class_count[negative_item_key] = class_values_dict.copy()
+
+        for i, row in data.iterrows():
+            try:
+                if row[feature] >= split_value:
+                    attribute_values_class_count[positive_item_key][row[target_name]] += 1
+                else:
+                    attribute_values_class_count[negative_item_key][row[target_name]] += 1
+            except KeyError:
+                continue
+    else:
+        feature_attributes = list(set(data[feature]))
+        for attribute in feature_attributes:
+            attribute_values_class_count[attribute] = class_values_dict.copy()
+
+        for i, row in data.iterrows():
+            try:
+                attribute_values_class_count[row[feature]][row[target_name]] += 1
+            except KeyError:
+                continue
+    return attribute_values_class_count
 
 
 data_set_size = 0
@@ -125,11 +165,19 @@ def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=Fa
             #     return create_terminal_node(data, name_of_predicted_class)
 
         if is_column_numeric(data, best_splitting_feature):
-            root_node = TreeLeafGeneric(best_splitting_feature, extract_values(
-                data, best_splitting_feature), splitting_heurestics_values[best_heurestics_value_ind], True)
+            feature_values_extracted = extract_values(
+                data, best_splitting_feature, heurestics)
+            attributes_class_values_extracted = extract_class_values_for_attributes(
+                data, best_splitting_feature, heurestics)
+            root_node = TreeLeafGeneric(best_splitting_feature, feature_values_extracted,
+                                        attributes_class_values_extracted, splitting_heurestics_values[best_heurestics_value_ind], True)
         else:
-            root_node = TreeLeafGeneric(best_splitting_feature, extract_values(
-                data, best_splitting_feature), splitting_heurestics_values[best_heurestics_value_ind])
+            feature_values_extracted = extract_values(
+                data, best_splitting_feature, heurestics)
+            attributes_class_values_extracted = extract_class_values_for_attributes(
+                data, best_splitting_feature, heurestics)
+            root_node = TreeLeafGeneric(best_splitting_feature, feature_values_extracted,
+                                        attributes_class_values_extracted, splitting_heurestics_values[best_heurestics_value_ind])
 
         tree = {root_node: {}}
         recent_best_splitting_feature = best_splitting_feature

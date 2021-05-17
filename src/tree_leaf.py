@@ -1,7 +1,8 @@
 class TreeLeafGeneric:
-    def __init__(self, feature, feature_values, heurestic_value, is_feature_numeric=False):
+    def __init__(self, feature, feature_values, attributes_class_values, heurestic_value, is_feature_numeric=False):
       self.feature = feature
       self.feature_values = feature_values
+      self.attributes_class_values = attributes_class_values
       self.heurestic_value = heurestic_value
       self.is_feature_numeric = is_feature_numeric
 
