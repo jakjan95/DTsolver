@@ -19,26 +19,33 @@ def heurestic_for_split(feature, split_value, samples, target_name="CLASS", heur
 
 
 def split_continuous_variable(feature, samples, heurestic=gini_impurity_weighted):
-    """
-    TODO: handling different heurestics
-    """
     feature_values = list(set(samples[feature]))
     feature_values.sort()
 
     feature_values2 = feature_values.copy()
     feature_values2.pop(0)
 
-    best_impurity = 1.0
+    best_heuristics_value = None
     best_split = None
     zipped_values = zip(feature_values, feature_values2)
 
     for pair in zipped_values:
         split_value = (float(pair[0]) + float(pair[1])) / 2
-        impurity = heurestic_for_split(
+        heuristics_value = heurestic_for_split(
             feature, split_value, samples, heurestic)
-        if impurity < best_impurity:
-            best_impurity = impurity
+
+        if best_heuristics_value is None:
+            best_heuristics_value = heuristics_value
             best_split = split_value
+
+        if heurestic in [info_gain, information_gain_ratio, distance_measure, j_measure, weight_of_evidence]:
+            if heuristics_value > best_heuristics_value:
+                best_heuristics_value = heuristics_value
+                best_split = split_value
+        elif heurestic in [gini_impurity_weighted, gini_pri, relief, relevance, mdl_simple]:
+            if heuristics_value < best_heuristics_value:
+                best_heuristics_value = heuristics_value
+                best_split = split_value
 
     return best_split
 
