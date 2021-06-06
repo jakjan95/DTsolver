@@ -17,20 +17,15 @@ def heurestic_for_split(feature, split_value, samples, target_name="CLASS", heur
 
     return heurestic(samples_cp, feature, target_name)
 
-
-def split_continuous_variable(feature, samples, heurestic=gini_impurity_weighted):
-    feature_values = list(set(samples[feature]))
-    feature_values.sort()
-
-    feature_values2 = feature_values.copy()
-    feature_values2.pop(0)
+#[running_average_split_points, distance_binning_split_points]
+given_split_values_heuristics = distance_binning_split_points
+def split_continuous_variable(feature, samples, heurestic = gini_impurity_weighted, split_values_heuristic = given_split_values_heuristics):
+    split_points = split_values_heuristic(samples, feature)
 
     best_heuristics_value = None
     best_split = None
-    zipped_values = zip(feature_values, feature_values2)
 
-    for pair in zipped_values:
-        split_value = (float(pair[0]) + float(pair[1])) / 2
+    for split_value in split_points:
         heuristics_value = heurestic_for_split(
             feature, split_value, samples, heurestic)
 
@@ -141,7 +136,7 @@ def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=Fa
         Class homogenity
         """
         return list(set(data[name_of_predicted_class]))[0]
-    elif len(data) <= data_set_size * 0.01:
+    elif len(data) != 0 and len(data) <= data_set_size * 0.01:
         """
         Minimum number of instance for a non-terminal node - just to avoid overgrowing
         """
@@ -198,17 +193,21 @@ def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=Fa
             negative_item_key = "<" + str(split_value)
             negative_data = data[data[recent_best_splitting_feature]
                                  < split_value]
-            subtree_negative = build_tree_generic(
-                heurestics, negative_data, root_node, True)
-            tree[root_node][negative_item_key] = subtree_negative
+
+            if(len(negative_data) != 0):
+                subtree_negative = build_tree_generic(
+                    heurestics, negative_data, root_node, True)
+                tree[root_node][negative_item_key] = subtree_negative
 
             # positive items(higher than split)
             positive_item_key = ">="+str(split_value)
             positive_data = data[data[recent_best_splitting_feature]
                                  >= split_value]
-            subtree_positive = build_tree_generic(
-                heurestics, positive_data, root_node, True)
-            tree[root_node][positive_item_key] = subtree_positive
+
+            if(len(positive_data) != 0):
+                subtree_positive = build_tree_generic(
+                    heurestics, positive_data, root_node, True)
+                tree[root_node][positive_item_key] = subtree_positive
 
         # binary/class data
         else:

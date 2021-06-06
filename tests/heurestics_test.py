@@ -16,6 +16,21 @@ class HeuresticsTest(TestCase):
              ['C', 'A', 'Class 1']
              ]), columns=['Feature1', 'Feature2', 'CLASS'])
 
+        self.test_table_numeric = pd.DataFrame(np.array(
+            [[2, 'Class 1'],
+             [4, 'Class 2'],
+             [1, 'Class 1'],
+             [5, 'Class 2'],
+             [4, 'Class 1'],
+             [2, 'Class 1'],
+             [1, 'Class 2'],
+             [4, 'Class 1'],
+             [4, 'Class 2'],
+             ]), columns=['NumericFeature', 'CLASS'])
+
+        self.test_table_numeric['NumericFeature'] = self.test_table_numeric['NumericFeature'].astype(
+            int)
+
     def test_gini_impurity(self):
         gini_weighted_value_for_feature1 = Decimal(0.5)
         self.assertAlmostEqual(heur.gini_impurity(
@@ -123,3 +138,13 @@ class HeuresticsTest(TestCase):
         test_mdl_simple_value_for_feature2 = Decimal(-1.651)
         self.assertAlmostEqual(heur.mdl_simple(
             self.test_table, 'Feature2'), test_mdl_simple_value_for_feature2, 2)
+
+    def test_running_average_split_points(self):
+        expected_split_points = [1.5, 3.0, 4.5]
+        self.assertEqual(heur.running_average_split_points(
+            self.test_table_numeric, 'NumericFeature'), expected_split_points)
+
+    def test_running_distance_binning_split_points(self):
+        expected_split_points = [1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2, 4.6]
+        self.assertEqual(heur.distance_binning_split_points(
+            self.test_table_numeric, 'NumericFeature'), expected_split_points)

@@ -308,3 +308,36 @@ def mdl_simple(data, split_attribute_name, target_name="CLASS"):
     mdl = Decimal(information_gain_value +
                   (Decimal(1 / number_of_training_instances))) * Decimal(first_part - sum_value)
     return mdl
+
+
+def running_average_split_points(samples, feature):
+    feature_values = list(set(samples[feature]))
+    feature_values.sort()
+
+    feature_values2 = feature_values.copy()
+    feature_values2.pop(0)
+
+    zipped_values = zip(feature_values, feature_values2)
+
+    split_points = list()
+    for pair in zipped_values:
+        split_value = (float(pair[0]) + float(pair[1])) / 2
+        split_points.append(float(split_value))
+    return split_points
+
+
+def distance_binning_split_points(samples, feature, num_of_bins=10):
+    binned_data = pd.cut(samples[feature], num_of_bins)
+    values_counted_in_binned_data = list(binned_data.value_counts().keys())
+    values_counted_in_binned_data.sort()
+    split_points = list()
+    for boundary in values_counted_in_binned_data:
+        if boundary.left not in split_points:
+            split_points.append(boundary.left)
+        if boundary.right not in split_points:
+            split_points.append(boundary.right)
+
+    split_points.pop(0)
+    split_points.pop()
+    return split_points
+  
