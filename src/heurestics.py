@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 from decimal import *
-
+from kmodes.kmodes import KModes
 # classic heuristics
 
 
@@ -341,3 +341,46 @@ def distance_binning_split_points(samples, feature, num_of_bins=10):
     split_points.pop()
     return split_points
   
+
+def binary_split_for_categorical(data, feature, target_name='CLASS'):
+    """
+    Binary split for categorical data using K-Modes implemented in kmodes library
+    """
+    data_to_analyse = data[[feature, target_name]].copy()
+    km = KModes(n_clusters=2, init='Huang', verbose=False, n_init=30, n_jobs=4)
+    clusters = km.fit_predict(data_to_analyse)
+    data_to_analyse = data_to_analyse.assign(segment=clusters)
+    data_to_analyse.segment = data_to_analyse.segment.astype(str)
+    segment_0 = data_to_analyse[data_to_analyse.segment == "0"]
+    segment_1 = data_to_analyse[data_to_analyse.segment == "1"]
+
+    segment0_dict = dict(segment_0[feature].value_counts())
+    segment1_dict = dict(segment_1[feature].value_counts())
+
+    left_node = []
+    right_node = []
+
+    for key in segment0_dict:
+        if key in segment1_dict:
+            if(segment0_dict[key] > segment1_dict[key]):
+                left_node.append(key)
+            else:
+                right_node.append(key)
+        else:
+            left_node.append(key)
+
+    for key in segment1_dict:
+        if key not in left_node and key not in right_node:
+            right_node.append(key)
+
+    if len(left_node) == 0:
+        highest_value_key_seg0 = max(segment0_dict, key=segment0_dict.get)
+        left_node.append(highest_value_key_seg0)
+        right_node.remove(highest_value_key_seg0)
+
+    if len(right_node) == 0:
+        highest_value_key_seg1 = max(segment1_dict, key=segment1_dict.get)
+        left_node.remove(highest_value_key_seg1)
+        right_node.append(highest_value_key_seg1)
+
+    return left_node, right_node

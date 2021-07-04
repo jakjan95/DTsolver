@@ -5,6 +5,11 @@ class TreeLeafGeneric:
       self.attributes_class_values = attributes_class_values
       self.heurestic_value = heurestic_value
       self.is_feature_numeric = is_feature_numeric
+      self.is_binary_categorical = False
+      self.binary_left_values = None
+      self.binary_right_values = None
+      self.left_label=None
+      self.right_label=None
 
     def is_tree_feature_numeric(self):
       return self.is_feature_numeric

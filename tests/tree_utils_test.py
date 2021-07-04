@@ -52,6 +52,6 @@ class TreeUtilsTest(TestCase):
         self.assertEqual(tree_number_of_levels, expected_numer_of_levels)
 
     def test_number_of_leafs(self):
-        expected_number_of_leafs = 6
+        expected_number_of_leafs = 5
         tree_number_of_leafs = dt_utils.number_of_leafs(self.tree_to_test)
         self.assertEqual(tree_number_of_leafs, expected_number_of_leafs)

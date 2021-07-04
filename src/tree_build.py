@@ -119,7 +119,6 @@ def extract_class_values_for_attributes(data, feature, heuristic=gini_impurity_w
                 continue
     return attribute_values_class_count
 
-
 data_set_size = 0
 def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=False):
     name_of_predicted_class = 'CLASS'
@@ -209,18 +208,57 @@ def build_tree_generic(heurestics, data, parent_node=None, is_numeric_feature=Fa
                     heurestics, positive_data, root_node, True)
                 tree[root_node][positive_item_key] = subtree_positive
 
-        # binary/class data
+        # binary/class data - categorical binary split
         else:
-            values_for_recent_best_splitting_feature = set(
+            best_splitting_feature_values = set(
                 data[recent_best_splitting_feature])
+            if len(best_splitting_feature_values) > 2:
+                """Categorical binary split"""
+                left_node_labels, right_node_labels = binary_split_for_categorical(
+                    data, recent_best_splitting_feature)
+                left_node_data = data[data[recent_best_splitting_feature].isin(
+                    left_node_labels)]
+                right_node_data = data[data[recent_best_splitting_feature].isin(
+                    right_node_labels)]
 
-            for feature_value in values_for_recent_best_splitting_feature:
-                data_with_feture_values = data[data[recent_best_splitting_feature]
-                                               == feature_value]
-                indexes = list(data)
-                indexes.remove(recent_best_splitting_feature)
-                data_with_feature_values = data_with_feture_values[indexes]
-                subtree = build_tree_generic(
-                    heurestics, data_with_feature_values, root_node)
-                tree[root_node][feature_value] = subtree
+                l_lbls = ','.join(left_node_labels)
+                r_lbls = ','.join(right_node_labels)
+                root_node.is_binary_categorical = True
+
+                root_node.binary_left_values = left_node_labels
+                root_node.left_label = l_lbls
+                root_node.binary_right_values = right_node_labels
+                root_node.right_label = r_lbls
+
+            elif len(best_splitting_feature_values) == 1:
+                tree[root_node][list(best_splitting_feature_values)[0]] = create_terminal_node(
+                    data, name_of_predicted_class)
+                return tree
+            else:
+                """Classic binary split"""
+                left_node_labels = list(best_splitting_feature_values)[0]
+                right_node_labels = list(best_splitting_feature_values)[1]
+
+                left_node_data = data[data[recent_best_splitting_feature].eq(
+                    left_node_labels)]
+                right_node_data = data[data[recent_best_splitting_feature].eq(
+                    right_node_labels)]
+
+                l_lbls = left_node_labels
+                r_lbls = right_node_labels
+
+            indexes = list(data)
+            indexes.remove(recent_best_splitting_feature)
+
+            left_node_data = left_node_data[indexes]
+            right_node_data = right_node_data[indexes]
+
+            left_subtree = build_tree_generic(
+                heurestics, left_node_data, root_node)
+
+            right_subtree = build_tree_generic(
+                heurestics, right_node_data, root_node)
+
+            tree[root_node][l_lbls] = left_subtree
+            tree[root_node][r_lbls] = right_subtree
     return tree

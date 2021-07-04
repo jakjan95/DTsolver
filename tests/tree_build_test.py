@@ -32,7 +32,7 @@ class TreeBuildTest(TestCase):
             int)
 
     def test_split_continuous_variable(self):
-        split_value_result = 4.5
+        split_value_result = 4.2
         self.assertAlmostEqual(tree.split_continuous_variable(
             'NumericFeature', self.test_table), split_value_result, 2)
 
@@ -66,7 +66,7 @@ class TreeBuildTest(TestCase):
             self.test_table, 'ClassFeature'), heuristic_value_for_class_feature, 2)
 
     def test_extract_values(self):
-        extracted_from_numeric_feature = {'>=4.5': 1, '<4.5': 8}
+        extracted_from_numeric_feature = {'>=4.2': 1, '<4.2': 8}
         self.assertEqual(tree.extract_values(
             self.test_table, 'NumericFeature'), extracted_from_numeric_feature)
         extracted_from_binary_feature = {0: 4, 1: 5}
@@ -78,7 +78,7 @@ class TreeBuildTest(TestCase):
 
     def test_extract_class_values_for_attributes(self):
         extracted_class_atribute_numeric_feature = {
-            '>=4.5': {'Class 2': 1, 'Class 1': 0}, '<4.5': {'Class 2': 3, 'Class 1': 5}}
+            '>=4.2': {'Class 2': 1, 'Class 1': 0}, '<4.2': {'Class 2': 3, 'Class 1': 5}}
         self.assertEqual(tree.extract_class_values_for_attributes(
             self.test_table, 'NumericFeature'), extracted_class_atribute_numeric_feature)
         extracted_class_atribute_binary_feature = {

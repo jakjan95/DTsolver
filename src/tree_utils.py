@@ -22,7 +22,18 @@ def predict(query, tree, default=None):
                                 negative_key_for_numeric]
                             result = tree[tree_feature][negative_tree_leaf]
                     else:
-                        result = tree[tree_feature][query[key]]
+                        # result = None
+                        if tree_feature.is_binary_categorical == True:
+                            """categorical binary split"""
+                            if query[key] in tree_feature.binary_left_values:
+                                result=tree[tree_feature][tree_feature.left_label]
+                            elif query[key] in tree_feature.binary_right_values:
+                                result=tree[tree_feature][tree_feature.right_label]
+                            else:
+                                return default
+                        else:
+                            """classic binary split"""
+                            result = tree[tree_feature][query[key]]
                 except:
                     return default
 
@@ -62,3 +73,6 @@ def number_of_leafs(tree):
         else:
             cnt += 1
     return cnt
+
+
+

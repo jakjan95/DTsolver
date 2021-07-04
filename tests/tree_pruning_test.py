@@ -79,5 +79,5 @@ class TreePruningTest(TestCase):
         dummy_tree_accuracy_after_pruning = dt_utils.tree_accuracy(
             self.testing_table, dummy_tree_pruned)
         self.assertNotEqual(dummy_tree_pruned, dummy_tree)
-        self.assertGreater(dummy_tree_accuracy_after_pruning,
+        self.assertGreaterEqual(dummy_tree_accuracy_after_pruning,
                            dummy_tree_accuracy)
